@@ -1,0 +1,55 @@
+IGOR - Intelligent Guide and Observation Robot
+IGOR er en interaktiv assistent og robotven, der kan forstå dansk tale, generere danske tekst-til-tale-svar, og besvare spørgsmål med kunstig intelligens. Denne README beskriver, hvordan du installerer og bruger IGOR på dit system.
+
+Funktioner
+Stemmegenkendelse med Whisper
+Dansk tekst-til-tale (TTS) med Piper
+Søgeresultater fra internettet via DuckDuckGo
+Kunstig intelligens genererede svar fra Ollama LLM
+Automatisk fejlmeddelelse og fejlhåndtering
+Installation
+For at installere IGOR skal du bruge installationsscriptet install_igor.sh, som gør følgende:
+
+Opdaterer og opgraderer systempakker.
+Installerer nødvendige afhængigheder som python3, python3-venv, ffmpeg, curl og piper.
+Downloader og installerer Ollama LLM for at kunne generere AI-svar.
+Opretter et Python-virtuelt miljø og installerer alle nødvendige Python-moduler.
+Opretter filen igor.py, som indeholder al logik for IGOR’s funktioner.
+Trin-for-trin installation
+Gem scriptet som install_igor.sh.
+Giv scriptet eksekveringstilladelser:
+bash
+Kopier kode
+chmod +x install_igor.sh
+Kør scriptet med root-rettigheder:
+bash
+Kopier kode
+sudo ./install_igor.sh
+Når installationen er færdig, kan du starte IGOR ved at aktivere det virtuelle miljø og køre igor.py:
+bash
+Kopier kode
+source igor_env/bin/activate && python igor.py
+Brug af IGOR
+IGOR kan hjælpe dig på mange måder. Når du starter IGOR, vil han introducere sig selv og vente på dine kommandoer. Nogle eksempler på kommandoer inkluderer:
+
+"Farvel": Afslutter IGOR.
+"Søg efter [emne]": Søger på internettet efter det angivne emne og returnerer de tre øverste resultater fra DuckDuckGo.
+Samtalekommandorer: Stil spørgsmål eller giv kommandoer, som IGOR vil forsøge at besvare ved hjælp af Ollama’s LLM.
+Eksempelkommandoer
+”Hej IGOR, hvad er vejret i København?”
+”Søg efter nyheder om teknologi”
+”Farvel”
+Fejlhåndtering
+Scriptet har en omfattende fejlmeddelelse, der hjælper med at identificere problemer under installationen, såsom netværksproblemer eller manglende afhængigheder. Hvis en fejl opstår under kørsel af IGOR, vil han forsøge at forklare problemet.
+
+Krav
+Operativsystem: Linux
+Internetforbindelse: Kræves for installation og nogle funktioner (fx internet-søgninger)
+Python 3: Scriptet bruger Python 3 og afhængigheder som whisper, SpeechRecognition, pyaudio, requests, beautifulsoup4, og playsound
+Teknologier
+IGOR anvender:
+
+Whisper: Til stemmegenkendelse.
+Piper: Til tekst-til-tale for dansk sprog.
+Ollama LLM: Til kunstig intelligens-genererede svar.
+DuckDuckGo: Til at søge på internettet og hente søgeresultater.

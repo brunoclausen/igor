@@ -33,22 +33,10 @@ apt install -y python3 portaudio19-dev libasound2-dev ffmpeg || {
 
 # Download og installer Ollama til CPU-brug
 echo "Installerer Ollama..."
-if curl -Is https://ollama.com/download/Ollama_Linux.deb | grep -q "200 OK"; then
-    curl -o ollama.deb https://ollama.com/download/Ollama_Linux.deb
-    dpkg -i ollama.deb || {
-        echo "Fejl: Ollama installation mislykkedes. Prøver at rette afhængigheder."
-        apt install -f -y  # Forsøg at installere manglende afhængigheder
-        dpkg -i ollama.deb || {
-            echo "Ollama kunne ikke installeres korrekt, selv efter afhængighedsrettelser."
-            rm ollama.deb
-            exit 1
-        }
-    }
-else
-    echo "Fejl: Link til Ollama er ikke gyldigt eller utilgængeligt."
+curl -fsSL https://ollama.com/install.sh | sh || {
+    echo "Fejl: Ollama installation mislykkedes."
     exit 1
-fi
-rm ollama.deb
+}
 
 # Tjekker, om Ollama er installeret korrekt
 if ! command -v ollama &> /dev/null; then
@@ -78,26 +66,34 @@ echo "Aktiverer Python-venv og opdaterer pip..."
 source igor_env/bin/activate
 pip install --upgrade pip || { echo "Fejl ved opdatering af pip."; deactivate; exit 1; }
 
-# Opret requirements.txt for Python-afhængigheder
+# Opret requirements.txt for Python-afhængigheder uden playsound
 cat << 'EOF' > requirements.txt
 openai-whisper
 SpeechRecognition
 pyaudio
 requests
 beautifulsoup4
-playsound
 EOF
 
-# Installer Python-afhængigheder
+# Installerer Python-afhængigheder individuelt
 echo "Installerer Python-afhængigheder..."
-pip install -r requirements.txt || {
-    echo "Fejl ved installation af Python-afhængigheder."
-    deactivate
-    exit 1
+for package in $(cat requirements.txt); do
+    echo "Installerer $package..."
+    pip install $package || {
+        echo "Fejl ved installation af $package."
+        deactivate
+        exit 1
+    }
+done
+
+# Installer pygame som alternativ til playsound
+echo "Installerer pygame til lydafspilning..."
+pip install pygame || {
+    echo "Fejl ved installation af pygame. Lydafspilning vil ikke være tilgængelig."
 }
 
 # Tjekker, om alle Python-afhængigheder blev installeret korrekt
-for package in openai-whisper SpeechRecognition pyaudio requests beautifulsoup4 playsound; do
+for package in openai-whisper SpeechRecognition pyaudio requests beautifulsoup4 pygame; do
     if ! python3 -c "import $package" &> /dev/null; then
         echo "$package blev ikke installeret korrekt."
         deactivate
@@ -114,7 +110,7 @@ import random
 import speech_recognition as sr
 import requests
 from bs4 import BeautifulSoup
-import playsound
+import pygame
 import whisper
 
 # Initialiser Whisper model
@@ -132,8 +128,13 @@ def igor_talk(text):
     print("IGOR: " + text)
     try:
         subprocess.run(["piper", "--voice", "da-DK", "--text", text, "--output_file", "igor_response.wav"])
-        playsound.playsound("igor_response.wav")
+        pygame.mixer.init()
+        pygame.mixer.music.load("igor_response.wav")
+        pygame.mixer.music.play()
+        while pygame.mixer.music.get_busy():
+            continue
         os.remove("igor_response.wav")
+        pygame.mixer.quit()
     except Exception as e:
         print("Fejl ved TTS med Piper:", e)
 
